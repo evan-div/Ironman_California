@@ -247,9 +247,14 @@ create trigger activities_set_updated_at before update on public.activities
   for each row execute function public.set_updated_at();
 
 -- Keep planned_sessions.status consistent with activity links.
+-- These two functions are SECURITY DEFINER so they also work when rows are
+-- removed by a cascade from auth.users (which runs as the auth service role).
+-- They only ever touch the session referenced by the row being changed, and the
+-- composite foreign key guarantees that session belongs to the same athlete.
 create or replace function public.planned_sessions_enforce_status()
 returns trigger
 language plpgsql
+security definer
 set search_path = ''
 as $$
 begin
@@ -284,6 +289,7 @@ create trigger planned_sessions_enforce_status_on_insert before insert on public
 create or replace function public.activities_sync_planned_session()
 returns trigger
 language plpgsql
+security definer
 set search_path = ''
 as $$
 begin
@@ -304,6 +310,10 @@ $$;
 create trigger activities_sync_planned_session
   after insert or delete or update of planned_session_id on public.activities
   for each row execute function public.activities_sync_planned_session();
+
+revoke execute on function public.planned_sessions_enforce_status() from public, anon, authenticated;
+revoke execute on function public.activities_sync_planned_session() from public, anon, authenticated;
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
 
 -- ---------------------------------------------------------------------------
 -- milestones

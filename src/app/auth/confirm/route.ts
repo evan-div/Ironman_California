@@ -26,9 +26,8 @@ export async function GET(request: NextRequest) {
     ok = !(await supabase.auth.exchangeCodeForSession(code)).error;
   }
 
-  if (ok) {
-    target.pathname = next;
-  } else {
+  if (ok) return NextResponse.redirect(new URL(next, request.url));
+  {
     target.pathname = "/login";
     target.searchParams.set("error", "link");
   }

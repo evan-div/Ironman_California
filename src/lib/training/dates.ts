@@ -110,5 +110,5 @@ export function lastMonthKeys(today: DateString, count: number): string[] {
 export function zonedDateTimeToIso(date: DateString, time: string, timeZone: string): string {
   const [y, mo, d] = date.split("-").map(Number);
   const [h, mi] = time.split(":").map(Number);
-  return new TZDate(y, mo - 1, d, h, mi, 0, timeZone).toISOString();
+  return new Date(new TZDate(y, mo - 1, d, h, mi, 0, timeZone).getTime()).toISOString();
 }

@@ -4,7 +4,7 @@ import { weekStart, type DateString } from "./dates";
 export type AdherenceSession = Pick<PlannedSession, "session_date" | "activity_type" | "status" | "original_date">;
 
 export type Adherence = {
-  /** Sessions that count: non-rest, non-recovery, scheduled on or before today. */
+  /** Sessions that count: non-rest, non-recovery, and either resolved (completed/skipped) or past due. */
   eligible: number;
   completed: number;
   skipped: number;
@@ -19,17 +19,17 @@ export type Adherence = {
 /**
  * Adherence rules, stated explicitly:
  *  - Rest days and recovery sessions are never eligible.
- *  - A session is eligible once its (current) date is today or earlier —
- *    except today's still-open sessions, which are not held against the athlete yet.
- *  - completed → counts as done. skipped → eligible, not done.
- *  - still "planned" after its date has passed → missed.
+ *  - completed → eligible and done, whenever it was scheduled (finishing a
+ *    session a few days early still counts).
+ *  - skipped → eligible, not done (the athlete has made the call, even ahead of time).
+ *  - still "planned": eligible — and counted as missed — only once its date has
+ *    passed. Today's open sessions and future sessions are not held against the athlete.
  *  - A rescheduled session is judged once, on the date it was moved to.
  */
 export function isEligibleForAdherence(s: AdherenceSession, today: DateString): boolean {
   if (s.activity_type === "rest" || s.activity_type === "recovery") return false;
-  if (s.session_date > today) return false;
-  if (s.session_date === today && s.status === "planned") return false;
-  return true;
+  if (s.status === "completed" || s.status === "skipped") return true;
+  return s.session_date < today;
 }
 
 export function computeAdherence(sessions: AdherenceSession[], today: DateString): Adherence {

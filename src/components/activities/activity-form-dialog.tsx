@@ -4,7 +4,7 @@ import * as React from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronDown, Loader2 } from "lucide-react";
-import type { Activity, ActivityType, Profile } from "@/types";
+import type { ActivityType, Profile } from "@/types";
 import { ACTIVITY_TYPES } from "@/types";
 import { createActivity, getLinkOptions, updateActivity, type LinkOptions } from "@/app/actions/activities";
 import {
