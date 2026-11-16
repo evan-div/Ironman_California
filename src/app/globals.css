@@ -1,0 +1,152 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+:root {
+  --canvas: #f7f7f2;
+  --ink: #202720;
+  --forest: #366b54;
+  --forest-deep: #2b5643;
+  --sage: #dce8dc;
+  --line: #e7e8e1;
+  --surface: #ffffff;
+  --muted-ink: #5f6a61;
+  --faint-ink: #717b73;
+  --danger: #a4483a;
+
+  --swim: #4f9cb8;
+  --bike: #c68b43;
+  --run: #6b9c77;
+  --strength: #947cb2;
+  --recovery: #b47b68;
+  --other: #7c8580;
+  --rest: #a9afa6;
+
+  --radius: 0.875rem;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-ink: var(--ink);
+  --color-forest: var(--forest);
+  --color-forest-deep: var(--forest-deep);
+  --color-sage: var(--sage);
+  --color-line: var(--line);
+  --color-surface: var(--surface);
+  --color-muted-ink: var(--muted-ink);
+  --color-faint-ink: var(--faint-ink);
+  --color-danger: var(--danger);
+  --color-swim: var(--swim);
+  --color-bike: var(--bike);
+  --color-run: var(--run);
+  --color-strength: var(--strength);
+  --color-recovery: var(--recovery);
+  --color-other: var(--other);
+  --color-rest: var(--rest);
+
+  /* shadcn/ui semantic aliases */
+  --color-background: var(--canvas);
+  --color-foreground: var(--ink);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--ink);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--ink);
+  --color-primary: var(--forest);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--sage);
+  --color-secondary-foreground: var(--ink);
+  --color-muted: #efefe8;
+  --color-muted-foreground: var(--muted-ink);
+  --color-accent: var(--sage);
+  --color-accent-foreground: var(--ink);
+  --color-destructive: var(--danger);
+  --color-border: var(--line);
+  --color-input: #d9dbd2;
+  --color-ring: var(--forest);
+
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
+
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-card: 0 1px 2px rgb(32 39 32 / 0.04), 0 1px 1px rgb(32 39 32 / 0.02);
+  --shadow-lift: 0 10px 30px -12px rgb(32 39 32 / 0.18);
+}
+
+@layer base {
+  * {
+    border-color: var(--line);
+  }
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01";
+  }
+  :focus-visible {
+    outline: 2px solid var(--forest);
+    outline-offset: 2px;
+  }
+  button,
+  [role="button"],
+  a,
+  summary {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  /* 16px inputs stop iOS from zooming the page on focus. */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+  @media (min-width: 640px) {
+    input,
+    select,
+    textarea {
+      font-size: 0.875rem;
+    }
+  }
+}
+
+@utility display {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+}
+
+@utility tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--faint-ink);
+}
+
+@utility safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
