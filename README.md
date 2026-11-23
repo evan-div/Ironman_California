@@ -140,6 +140,8 @@ The IRONMAN California plan is **not** in any migration. It lives in `src/lib/tr
 
 It contains exactly: the goal event; seven phases; five provisional milestones; week one (Nov 16–22, 2026); the Tuesday/Saturday bike progression through the week of Dec 28; and the two real activities from Nov 16 (a 1,000 yd swim with no duration, and a 12-minute sauna).
 
+A second pack, **Operation Get Off the Couch weeks 2–7**, lives in `src/lib/training/couch-plan.ts` under its own marker (`owner-ironman-california-2027-couch-plan-v1`). It adds the swim, run/walk, strength and rest days from Nov 23 to Jan 3 around the existing bike progression, and never changes the bike sessions or anything already logged. Because it has its own marker, an account that loaded the starter plan earlier gets an "Add the rest of the plan" button in Settings. The reasoning behind it is in [`docs/operation-get-off-the-couch.md`](docs/operation-get-off-the-couch.md).
+
 ---
 
 ## Deploying to Vercel

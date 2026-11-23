@@ -1,9 +1,10 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
-import { applyOwnerSeed } from "@/lib/data/seed";
+import { applyCouchPlan, applyOwnerSeed } from "@/lib/data/seed";
 import { normalizeExternalActivity, upsertImportedActivity } from "@/lib/ingestion";
 import { OWNER_SEED_KEY, seedPlannedSessions } from "@/lib/training/seed-data";
+import { couchPlanSessions } from "@/lib/training/couch-plan";
 import { adminClient, anonClient, resetUser, signedInClient } from "../support/supabase";
 
 const A = "it-athlete-a@project1406.test";
@@ -254,5 +255,28 @@ describe("account deletion", () => {
       const rows = await admin.from(table).select("*", { count: "exact", head: true }).eq("athlete_id", cId);
       expect(rows.count, table).toBe(0);
     }
+  });
+});
+
+describe("Get Off the Couch plan pack", () => {
+  const seededRows = async (client: SupabaseClient<Database>) =>
+    (await client.from("planned_sessions").select("*", { count: "exact", head: true }).not("seed_key", "is", null)).count;
+
+  it("is added once on top of an account that already has the starter plan, without touching it", async () => {
+    const before = await seededRows(a);
+    expect(await applyCouchPlan(a, aId)).toEqual({ applied: true });
+    expect(await seededRows(a)).toBe(before! + couchPlanSessions.length);
+
+    const bikes = await a.from("planned_sessions").select("planned_duration_seconds").eq("activity_type", "bike").not("seed_key", "is", null).order("session_date");
+    expect(bikes.data!.map((r) => r.planned_duration_seconds! / 60)).toEqual([35, 60, 40, 70, 45, 80, 30, 55, 45, 85, 45, 100, 35, 65]);
+
+    // The athlete deletes one; running it again restores nothing and adds nothing.
+    await a.from("planned_sessions").delete().eq("seed_key", couchPlanSessions[0].seed_key);
+    expect(await applyCouchPlan(a, aId)).toEqual({ applied: false, reason: "already-applied" });
+    expect(await seededRows(a)).toBe(before! + couchPlanSessions.length - 1);
+  });
+
+  it("lands in one account only", async () => {
+    expect(await seededRows(b)).toBe(0);
   });
 });

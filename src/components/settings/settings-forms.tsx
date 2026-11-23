@@ -77,7 +77,7 @@ export function SettingsForms({
   profile: Profile;
   event: GoalEvent | null;
   email: string | null;
-  starterPlan: "hidden" | "available" | "applied";
+  starterPlan: "hidden" | "available" | "couch-plan" | "applied";
 }) {
   const { pending: seeding, run: runSeed } = useAction();
 
@@ -229,12 +229,14 @@ export function SettingsForms({
           <p className="mt-1 text-[13px] leading-relaxed text-muted-ink">
             {starterPlan === "applied"
               ? "Loaded into your account. It is only ever added once, so anything you have edited or deleted stays that way."
-              : "Adds the goal race, seven training phases, week one, the December bike progression and your two activities from November 16. Safe to run once; it never duplicates."}
+              : starterPlan === "couch-plan"
+                ? "Your starter plan is loaded. This adds the rest of Operation Get Off the Couch (November 23 – January 3): swim, run/walk, strength and rest days around your bike progression. Nothing you have logged or edited changes."
+                : "Adds the goal race, seven training phases, week one, the December bike progression, the swim, run, strength and rest days through January 3, and your two activities from November 16. Safe to run once; it never duplicates."}
           </p>
-          {starterPlan === "available" ? (
+          {starterPlan === "available" || starterPlan === "couch-plan" ? (
             <Button className="mt-4" variant="secondary" disabled={seeding} onClick={() => runSeed(() => loadStarterPlan())}>
               {seeding ? <Loader2 className="animate-spin" /> : null}
-              Load starter plan
+              {starterPlan === "couch-plan" ? "Add the rest of the plan" : "Load starter plan"}
             </Button>
           ) : null}
         </Card>

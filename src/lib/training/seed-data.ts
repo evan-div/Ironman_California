@@ -159,7 +159,7 @@ export function easyBikeWorkout(totalMinutes: number, kind: "aerobic" | "enduran
   };
 }
 
-type SeedSession = {
+export type SeedSession = {
   seed_key: string;
   session_date: string;
   activity_type: string;
@@ -199,7 +199,7 @@ function saturdayBike(date: string, minutes: number, note?: string): SeedSession
   };
 }
 
-const rest = (date: string, description: string): SeedSession => ({
+export const rest = (date: string, description: string): SeedSession => ({
   seed_key: `plan:${date}:rest`,
   session_date: date,
   activity_type: "rest",

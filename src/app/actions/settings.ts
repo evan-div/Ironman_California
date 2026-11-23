@@ -11,7 +11,7 @@ import {
 } from "@/lib/validations/settings";
 import { toNumberOrNull, toTextOrNull } from "@/lib/validations/common";
 import { parseDuration } from "@/lib/training/duration";
-import { applyOwnerSeed } from "@/lib/data/seed";
+import { applyCouchPlan, applyOwnerSeed } from "@/lib/data/seed";
 import { isOwnerEmail } from "@/lib/data/auth";
 import { actionContext, dbError, fail, invalid, refreshApp, SIGNED_OUT } from "./helpers";
 
@@ -77,12 +77,17 @@ export async function loadStarterPlan(): Promise<ActionResult> {
   if (!ctx) return fail(SIGNED_OUT);
   if (!isOwnerEmail(ctx.email)) return fail("The starter plan is only available to the account owner.");
   try {
-    const result = await applyOwnerSeed(ctx.supabase, ctx.userId);
+    const base = await applyOwnerSeed(ctx.supabase, ctx.userId);
+    const couch = await applyCouchPlan(ctx.supabase, ctx.userId);
     refreshApp();
     return {
       ok: true,
       data: undefined,
-      message: result.applied ? "Starter plan loaded" : "The starter plan was already loaded — nothing was changed.",
+      message: base.applied
+        ? "Starter plan loaded"
+        : couch.applied
+          ? "Added the rest of Operation Get Off the Couch to your calendar"
+          : "The starter plan was already loaded — nothing was changed.",
     };
   } catch (e) {
     console.error("[loadStarterPlan]", e);

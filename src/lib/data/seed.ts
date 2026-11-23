@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "@/types/database";
+import { COUCH_PLAN_SEED_KEY, couchPlanSessions } from "@/lib/training/couch-plan";
 import {
   OWNER_SEED_KEY,
   seedActivities,
@@ -49,6 +50,26 @@ export async function applyOwnerSeed(supabase: SupabaseClient<Database>, athlete
 
   const marker = await supabase.from("athlete_seeds").insert({ athlete_id: athleteId, seed_key: OWNER_SEED_KEY });
   // 23505 = another request finished the same seed concurrently; that is fine.
+  if (marker.error && marker.error.code !== "23505") throw new Error(marker.error.message);
+  return { applied: true };
+}
+
+/**
+ * Add Operation Get Off the Couch weeks 2–7 (swim, run, strength, rest) to ONE
+ * athlete. Same guarantees as `applyOwnerSeed`, under its own marker, so an
+ * account that loaded the starter plan earlier can still receive it, and the
+ * starter plan's rows (and anything logged or edited) are never touched.
+ */
+export async function applyCouchPlan(supabase: SupabaseClient<Database>, athleteId: string): Promise<SeedResult> {
+  const existing = await supabase.from("athlete_seeds").select("seed_key").eq("athlete_id", athleteId).eq("seed_key", COUCH_PLAN_SEED_KEY).maybeSingle();
+  if (existing.error) throw new Error(existing.error.message);
+  if (existing.data) return { applied: false, reason: "already-applied" };
+
+  const rows = couchPlanSessions.map((s) => ({ ...s, athlete_id: athleteId, structured_workout: s.structured_workout as unknown as Json }));
+  const { error } = await supabase.from("planned_sessions").upsert(rows, { onConflict: "athlete_id,seed_key", ignoreDuplicates: true });
+  if (error) throw new Error(`The plan could not be applied: ${error.message}`);
+
+  const marker = await supabase.from("athlete_seeds").insert({ athlete_id: athleteId, seed_key: COUCH_PLAN_SEED_KEY });
   if (marker.error && marker.error.code !== "23505") throw new Error(marker.error.message);
   return { applied: true };
 }
